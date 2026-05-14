@@ -79,7 +79,7 @@ app.use("/api/", limiter);
 // Stricter rate limit for auth routes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: 100,
   message: "Too many login attempts, please try again later.",
   skipSuccessfulRequests: true,
 });
@@ -138,7 +138,7 @@ process.on("uncaughtException", (err) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 const server = app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
 
