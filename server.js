@@ -111,6 +111,8 @@ app.use('/api/teams/:teamId/newsletters', require("./routes/newsletters"));
 app.use('/api/teams/:teamId/catalog', require("./routes/projectCatalog"));
 app.use('/api/teams/:teamId/announcements', require("./routes/announcements"));
 app.use('/api/teams/:teamId/resources', require("./routes/resources"));
+app.use('/api/teams/:teamId/messages', require("./routes/messageRoutes"));
+app.use('/api/teams/:teamId/ai', require("./routes/aiRoutes"));
 
 // Report download routes
 app.use('/api', require("./routes/reports"));

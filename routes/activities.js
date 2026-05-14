@@ -251,4 +251,42 @@ router.get('/stats/summary', async (req, res) => {
   }
 });
 
+// @route   GET /api/activities/stats/daily?days=7
+// @desc    Get per-day activity breakdown for the last N days
+// @access  Private
+router.get('/stats/daily', async (req, res) => {
+  try {
+    const days = Math.min(parseInt(req.query.days) || 7, 30);
+    const results = [];
+
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+
+      const activity = await Activity.findOne({
+        user: req.user._id,
+        date: { $gte: new Date(dateStr + 'T00:00:00'), $lte: new Date(dateStr + 'T23:59:59') }
+      });
+
+      const meetMins  = activity ? activity.meetings.reduce((a, m) => a + (m.duration || 0), 0) : 0;
+      const taskMins  = activity ? activity.tasks.reduce((a, t) => a + (t.timeSpent || 0), 0) : 0;
+      const extraMins = activity ? activity.extraActivities.reduce((a, e) => a + (e.duration || 0), 0) : 0;
+
+      results.push({
+        date: dateStr,
+        day: d.toLocaleDateString('en-US', { weekday: 'short' }),
+        hours: parseFloat(((meetMins + taskMins + extraMins) / 60).toFixed(1)),
+        meetings: activity ? activity.meetings.length : 0,
+        tasks: activity ? activity.tasks.length : 0,
+        productivity: activity ? activity.productivity : 0,
+      });
+    }
+
+    res.json({ success: true, data: results });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error fetching daily stats' });
+  }
+});
+
 module.exports = router;
